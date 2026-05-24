@@ -11,6 +11,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(pacman)
-p_load()
+p_load(knitr, tidyverse, dplyr, tidyr, readr, ggplot2, lubridate)
 ```
+
+```{r}
+
+```
+
 
