@@ -85,3 +85,44 @@ stats_df_completo <- datos %>%
 stats_df_completo
 ```
 
+### Paso 7
+
+```{r}
+
+```
+
+### Paso 8
+
+```{r}
+
+```
+
+### Paso 9
+
+```{r}
+
+```
+
+### Paso 10
+
+```{r}
+
+```
+
+### Paso 11
+
+```{r}
+
+```
+
+### Paso 12
+
+```{r}
+
+```
+
+# Paso 13 - Ahora con datos de 2026
+
+```{r}
+
+```
