@@ -101,7 +101,29 @@ ggpairs(numeric_data,
 ### Paso 8
 
 ```{r}
+pearson_cor <- cor(numeric_data, use = "complete.obs", method = "pearson")
+print(round(pearson_cor, 4))
 
+spearman_cor <- cor(numeric_data, use = "complete.obs", method = "spearman")
+print(round(spearman_cor, 4))
+
+pearson_upper <- pearson_cor[upper.tri(pearson_cor)]
+nombres_vars <- colnames(pearson_cor)
+pares <- data.frame(
+  var1 = rep(nombres_vars, each = length(nombres_vars))[upper.tri(pearson_cor)],
+  var2 = rep(nombres_vars, times = length(nombres_vars))[upper.tri(pearson_cor)]
+)
+
+max_pearson_idx <- which.max(abs(pearson_upper))
+max_spearman_idx <- which.max(abs(spearman_cor[upper.tri(spearman_cor)]))
+
+cat("PEARSON:\n")
+cat("   Mayor correlación:", round(pearson_upper[max_pearson_idx], 4), 
+    "entre", pares$var1[max_pearson_idx], "y", pares$var2[max_pearson_idx], "\n")
+
+cat("\nSPEARMAN:\n")
+cat("   Mayor correlación:", round(spearman_cor[upper.tri(spearman_cor)][max_spearman_idx], 4), 
+    "entre", pares$var1[max_spearman_idx], "y", pares$var2[max_spearman_idx])
 ```
 
 ### Paso 9
