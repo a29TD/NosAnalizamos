@@ -60,5 +60,28 @@ datos <- datos %>%
   bind_cols(calificaciones_clean)
 ```
 
+### Paso 6
 
+```{r}
+funs_apply_completo <- list(
+  "min" = ~min(.x, na.rm = TRUE),
+  "p25" = ~quantile(.x, 0.25, na.rm = TRUE),
+  "median" = ~median(.x, na.rm = TRUE),
+  "mean" = ~mean(.x, na.rm = TRUE),
+  "sd" = ~sd(.x, na.rm = TRUE),
+  "p75" = ~quantile(.x, 0.75, na.rm = TRUE),
+  "max" = ~max(.x, na.rm = TRUE)
+)
+
+stats_df_completo <- datos %>%
+  select(ALG, ANM, FP, DCS, MD) %>%
+  summarise(across(everything(), funs_apply_completo)) %>%
+  pivot_longer(cols = everything(), names_to = "var_stat", values_to = "values") %>%
+  separate(var_stat, into = c("variable", "stat"), sep = "_") %>%
+  pivot_wider(names_from = stat, values_from = values) %>%
+  mutate(across(c(min, p25, median, mean, sd, p75, max), ~ round(.x, 2)))
+
+# Mostrar la tabla completa
+stats_df_completo
+```
 
