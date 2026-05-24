@@ -58,6 +58,8 @@ calificaciones_clean <- calificaciones %>%
 datos <- datos %>%
   select(-c(ALG, ANM, FP, DCS, MD)) %>%
   bind_cols(calificaciones_clean)
+
+save(calificaciones_clean, file = "Notas.Rdata")
 ```
 
 ### Paso 6
