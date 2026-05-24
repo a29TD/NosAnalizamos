@@ -140,7 +140,15 @@ datos %>%
 ### Paso 10
 
 ```{r}
-
+datos %>%
+  select(Sex, ALG, ANM, FP, DCS, MD) %>%
+  pivot_longer(cols = -Sex, names_to = "Asignatura", values_to = "Calificacion") %>%
+  ggplot(aes(x = Asignatura, y = Calificacion, fill = Sex)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(title = "Distribución de calificaciones por asignatura y sexo",
+       x = "Asignatura", 
+       y = "Calificación",
+       fill = "Sexo")
 ```
 
 ### Paso 11
