@@ -173,7 +173,56 @@ alumnos_completos %>%
 ### Paso 12
 
 ```{r}
+# Cargar datos de 2026 (mismo proceso que con 2022)
+datos_2026 <- read_delim("data/NosAutoanalizamos2026 - NosAutoanalizamos (1).tsv", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE, skip = 27)
 
+datos_2026 <- datos_2026 %>%
+  select(-...22, -...23) %>%
+  slice(-n())
+
+names(datos_2026)[1] <- "Fecha"
+
+# Eliminar martsobm si existe
+datos_2026 <- datos_2026 %>%
+  filter(Id != "martsobm")
+
+# Limpiar calificaciones
+limpiar_calificacion_2026 <- function(x) {
+  x <- as.character(x)
+  x <- str_replace_all(x, ",", ".")
+  x <- ifelse(grepl("^NC$", x, ignore.case = TRUE), "3", x)
+  x <- ifelse(grepl("^NP$", x, ignore.case = TRUE), NA_character_, x)
+  x <- ifelse(grepl("^NA$", x, ignore.case = TRUE), NA_character_, x)
+  x <- ifelse(!grepl("^[0-9]*\\.?[0-9]+$", x), NA_character_, x)
+  return(as.numeric(x))
+}
+
+calif_2026 <- datos_2026 %>%
+  select(ALG, ANM, FP, DCS, MD) %>%
+  mutate(across(everything(), limpiar_calificacion_2026))
+
+datos_2026 <- datos_2026 %>%
+  select(-c(ALG, ANM, FP, DCS, MD)) %>%
+  bind_cols(calif_2026)
+
+# Comparativa de medias entre 2022 y 2026
+comparativa <- bind_rows(
+  datos %>% summarise(across(c(ALG, ANM, FP, DCS, MD), ~ mean(.x, na.rm = TRUE))) %>% mutate(curso = "2022"),
+  datos_2026 %>% summarise(across(c(ALG, ANM, FP, DCS, MD), ~ mean(.x, na.rm = TRUE))) %>% mutate(curso = "2026")
+) %>%
+  pivot_longer(cols = -curso, names_to = "Asignatura", values_to = "Media") %>%
+  mutate(Media = round(Media, 2))
+
+comparativa
+
+# Gráfico comparativo
+ggplot(comparativa, aes(x = Asignatura, y = Media, fill = curso)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Comparativa de medias: 2022 vs 2026",
+       x = "Asignatura", y = "Media de calificación") +
+  theme_minimal()
 ```
 
 # Paso 13 - Ahora con datos de 2026
