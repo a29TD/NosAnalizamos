@@ -9,10 +9,14 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+### Paso 2
+
 ```{r}
 library(pacman)
 p_load(knitr, tidyverse, dplyr, tidyr, readr, ggplot2, lubridate)
 ```
+
+###Paso 3
 
 ```{r}
 datos <- read_delim("data/NosAutoanalizamos2022 - Hoja1.tsv", 
@@ -20,6 +24,15 @@ datos <- read_delim("data/NosAutoanalizamos2022 - Hoja1.tsv",
     trim_ws = TRUE, skip = 25)
 datos <- datos %>%
   select(-...1)#quitamos la columna que pone "Registro ejemplo"
+
+datos <- datos[-nrow(datos),]#para quitar la ultima fila que es un texto que no son datos
+```
+
+### Paso 4
+
+```{r}
+datos <- datos %>%
+  filter(Id != "martsobm")
 ```
 
 
