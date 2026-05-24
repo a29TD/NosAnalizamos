@@ -154,7 +154,20 @@ datos %>%
 ### Paso 11
 
 ```{r}
+alumnos_completos <- datos %>%
+  filter(complete.cases(ALG, ANM, FP, DCS, MD))
 
+alumnos_completos %>%
+  select(Id, ALG, ANM, FP, DCS, MD) %>%
+  pivot_longer(cols = -Id, names_to = "Asignatura", values_to = "Calificacion") %>%
+  ggplot(aes(x = Id, y = Calificacion, color = Asignatura, group = Asignatura)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Perfil de calificaciones por alumno (solo casos completos)",
+       x = "ID Alumno", 
+       y = "Calificación",
+       color = "Asignatura") +
+  theme(axis.text.x = element_text(angle = 90))
 ```
 
 ### Paso 12
