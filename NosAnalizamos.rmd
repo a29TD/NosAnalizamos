@@ -223,10 +223,123 @@ ggplot(comparativa, aes(x = Asignatura, y = Media, fill = curso)) +
   labs(title = "Comparativa de medias: 2022 vs 2026",
        x = "Asignatura", y = "Media de calificación") +
   theme_minimal()
+
+#Las medias de notas son casi todas más bajas que en 2022.
 ```
 
 # Paso 13 - Ahora con datos de 2026
 
-```{r}
+### Paso 13 - Preguntas específicas sobre datos del curso 2026
 
+```{r}
+# Limpiar variables numéricas y categóricas
+datos_2026 <- datos_2026 %>%
+  mutate(
+    Wr.Hnd = as.numeric(str_replace_all(as.character(Wr.Hnd), ",", ".")),
+    Height = as.numeric(str_replace_all(as.character(Height), ",", ".")),
+    Pulse = as.numeric(str_replace_all(as.character(Pulse), ",", ".")),
+    Age = as.numeric(str_replace_all(as.character(Age), ",", ".")),
+    Sex = case_when(
+      Sex %in% c("M", "Masculino", "Hombre") ~ "M",
+      Sex %in% c("F", "Femenino", "Mujer") ~ "F",
+      TRUE ~ NA_character_
+    ),
+    Smoke = case_when(
+      Smoke %in% c("Si", "SI", "sí", "Sí") ~ "Si",
+      Smoke %in% c("No", "NO", "no") ~ "No",
+      TRUE ~ NA_character_
+    )
+  )
+
+# 1. Edad del alumno más joven (usando Age directamente)
+datos_2026 %>%
+  summarise(edad_minima = min(Age, na.rm = TRUE)) %>%
+  print()
+
+# 2. Alumnos que simultanean trabajo y estudios
+datos_2026 %>%
+  filter(Hwork > 0 & HSt > 0) %>%
+  summarise(n = n()) %>%
+  print()
+
+# 3. Comparación hombres vs mujeres fumadoras
+datos_2026 %>%
+  filter(!is.na(Sex) & !is.na(Smoke)) %>%
+  group_by(Sex, Smoke) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  filter(Smoke == "Si") %>%
+  print()
+
+# 4. Media y varianza de Wr.Hnd por sexo
+datos_2026 %>%
+  group_by(Sex) %>%
+  summarise(
+    Media = round(mean(Wr.Hnd, na.rm = TRUE), 2),
+    Varianza = round(var(Wr.Hnd, na.rm = TRUE), 2)
+  ) %>%
+  print()
+
+# 5. Relación entre sexo y mano con la que se escribe (NW.Hnd)
+datos_2026 %>%
+  select(Sex, NW.Hnd) %>%
+  table() %>%
+  print()
+
+# Test chi-cuadrado
+datos_2026 %>%
+  select(Sex, NW.Hnd) %>%
+  na.omit() %>%
+  {chisq.test(table(.$Sex, .$NW.Hnd))} %>%
+  print()
+
+# 6. Relación lineal entre Height y Wr.Hnd
+datos_2026 %>%
+  summarise(correlacion = round(cor(Height, Wr.Hnd, use = "complete.obs"), 4)) %>%
+  print()
+
+# Gráfico
+datos_2026 %>%
+  ggplot(aes(x = Wr.Hnd, y = Height)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(title = "Relación entre Height y Wr.Hnd")
+
+# 7. Identificador de Hampel para outliers en Height
+hampel <- function(x) {
+  med <- median(x, na.rm = TRUE)
+  mad_x <- mad(x, na.rm = TRUE)
+  which(abs(x - med) > 3 * mad_x)
+}
+
+datos_2026 %>%
+  pull(Height) %>%
+  hampel() %>%
+  {if(length(.) > 0) paste("Filas:", paste(., collapse = ", ")) else "No hay outliers"} %>%
+  print()
+
+# 8. Imputación generalizada para FP (media)
+datos_2026 %>%
+  summarise(media_fp = round(mean(FP, na.rm = TRUE), 2)) %>%
+  print()
+
+# 9. Imputación por PulseCat
+datos_2026 %>%
+  mutate(PulseCat = ifelse(Pulse >= 65, "PulseH", "PulseL")) %>%
+  group_by(PulseCat) %>%
+  summarise(media_fp = round(mean(FP, na.rm = TRUE), 2)) %>%
+  print()
+
+# 10. Relación entre ritmo cardíaco y ALG
+datos_2026 %>%
+  summarise(correlacion = round(cor(Pulse, ALG, use = "complete.obs"), 4)) %>%
+  print()
+
+# Gráfico
+datos_2026 %>%
+  ggplot(aes(x = Pulse, y = ALG)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(title = "Relación entre ritmo cardíaco y calificación de ALG")
+
+#tiene una relacion muy baja. No podemos sostener esa afirmación con los resultados dados.
 ```
