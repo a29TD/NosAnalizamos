@@ -15,7 +15,11 @@ p_load(knitr, tidyverse, dplyr, tidyr, readr, ggplot2, lubridate)
 ```
 
 ```{r}
-
+datos <- read_delim("data/NosAutoanalizamos2022 - Hoja1.tsv", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE, skip = 25)
+datos <- datos %>%
+  select(-...1)#quitamos la columna que pone "Registro ejemplo"
 ```
 
 
