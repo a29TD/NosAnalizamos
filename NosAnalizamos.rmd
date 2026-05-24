@@ -129,7 +129,12 @@ cat("   Mayor correlación:", round(spearman_cor[upper.tri(spearman_cor)][max_sp
 ### Paso 9
 
 ```{r}
-
+datos %>%
+  select(ALG, ANM, FP, DCS, MD) %>%
+  pivot_longer(everything(), names_to = "Asignatura", values_to = "Calificacion") %>%
+  ggplot(aes(x = Asignatura, y = Calificacion)) +
+  geom_boxplot() +
+  labs(x = "Asignatura", y = "Calificación")
 ```
 
 ### Paso 10
