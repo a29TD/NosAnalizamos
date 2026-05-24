@@ -26,6 +26,8 @@ datos <- datos %>%
   select(-...1)#quitamos la columna que pone "Registro ejemplo"
 
 datos <- datos[-nrow(datos),]#para quitar la ultima fila que es un texto que no son datos
+
+names(datos)[1] <- "Fecha"
 ```
 
 ### Paso 4
@@ -34,5 +36,29 @@ datos <- datos[-nrow(datos),]#para quitar la ultima fila que es un texto que no 
 datos <- datos %>%
   filter(Id != "martsobm")
 ```
+
+### Paso 5
+
+```{r}
+calificaciones <- datos %>%
+  select(ALG, ANM, FP, DCS, MD)
+
+limpiar_calificacion <- function(x) {
+  x <- as.character(x)
+  x <- ifelse(grepl("^NC$", x, ignore.case = TRUE), "3", x)
+  x <- ifelse(grepl("^NP$", x, ignore.case = TRUE), NA_character_, x)
+  x <- ifelse(grepl("^NA$", x, ignore.case = TRUE), NA_character_, x)
+  x <- ifelse(!grepl("^[0-9]*\\.?[0-9]+$", x), NA_character_, x)
+  return(as.numeric(x))
+}
+
+calificaciones_clean <- calificaciones %>%
+  mutate(across(everything(), limpiar_calificacion))
+
+datos <- datos %>%
+  select(-c(ALG, ANM, FP, DCS, MD)) %>%
+  bind_cols(calificaciones_clean)
+```
+
 
 
